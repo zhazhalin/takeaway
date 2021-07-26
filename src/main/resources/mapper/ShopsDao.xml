@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.takeaway.dao.ShopsDao">
+
+    <resultMap type="com.qf.takeaway.entity.Shops" id="ShopsMap">
+        <result property="sId" column="s_id" jdbcType="VARCHAR"/>
+        <result property="sImg" column="s_img" jdbcType="VARCHAR"/>
+        <result property="sDistance" column="s_distance" jdbcType="INTEGER"/>
+        <result property="sSales" column="s_sales" jdbcType="VARCHAR"/>
+        <result property="sLogo" column="s_logo" jdbcType="VARCHAR"/>
+        <result property="sName" column="s_name" jdbcType="VARCHAR"/>
+        <result property="sDesc" column="s_desc" jdbcType="VARCHAR"/>
+        <result property="sTitle" column="s_title" jdbcType="VARCHAR"/>
+        <result property="sScore" column="s_score" jdbcType="VARCHAR"/>
+        <result property="sAddress" column="s_address" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--    查询轮播数据-->
+    <select id="queryLb" resultMap="ShopsMap">
+        select * from takeaway.shops where s_logo='1';
+    </select>
+    <!--查询单个-->
+    <select id="queryById" resultMap="ShopsMap">
+        select
+          s_id, s_img, s_distance, s_sales, s_logo, s_name, s_desc, s_title, s_score, s_address
+        from takeaway.shops
+        where s_id = #{sId}
+    </select>
+
+    <!--    根据图片id查询对应的餐馆信息-->
+    <select id="queryShopById" parameterType="java.lang.String" resultMap="ShopsMap">
+         select s_id, s_img, s_distance, s_sales, s_logo, s_name, s_desc, s_title, s_score, s_address
+        from takeaway.shops
+        where s_id=#{id}
+    </select>
+    <!-- 根据餐馆类型查询对应的餐馆信息   -->
+    <select id="queryByTitle" parameterType="java.lang.String" resultMap="ShopsMap">
+        select s_id, s_img, s_distance, s_sales, s_logo, s_name, s_desc, s_title, s_score, s_address
+        from takeaway.shops
+        where s_title=#{title}
+    </select>
+    <!--    查询所有餐馆数据-->
+    <select id="queryAll1" resultMap="ShopsMap">
+        select
+          s_id, s_img, s_distance, s_sales, s_logo, s_name, s_desc, s_title, s_score, s_address
+        from takeaway.shops
+    </select>
+    <!--    查询数据总条数-->
+    <select id="getCount" resultType="java.lang.Integer">
+        select count(*) from takeaway.shops
+    </select>
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="ShopsMap">
+        select
+          s_id, s_img, s_distance, s_sales, s_logo, s_name, s_desc, s_title, s_score, s_address
+        from takeaway.shops
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="ShopsMap">
+        select
+        s_id, s_img, s_distance, s_sales, s_logo, s_name, s_desc, s_title, s_score, s_address
+        from takeaway.shops
+        <where>
+            <if test="sId != null">
+                and s_id = #{sId}
+            </if>
+            <if test="sImg != null and sImg != ''">
+                and s_img = #{sImg}
+            </if>
+            <if test="sDistance != null">
+                and s_distance = #{sDistance}
+            </if>
+            <if test="sSales != null and sSales != ''">
+                and s_sales = #{sSales}
+            </if>
+            <if test="sLogo != null and sLogo != ''">
+                and s_logo = #{sLogo}
+            </if>
+            <if test="sName != null and sName != ''">
+                and s_name = #{sName}
+            </if>
+            <if test="sDesc != null and sDesc != ''">
+                and s_desc = #{sDesc}
+            </if>
+            <if test="sTitle != null and sTitle != ''">
+                and s_title = #{sTitle}
+            </if>
+            <if test="sScore != null and sScore != ''">
+                and s_score = #{sScore}
+            </if>
+            <if test="sAddress != null and sAddress != ''">
+                and s_address = #{sAddress}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="sId" useGeneratedKeys="true">
+        insert into takeaway.shops(s_img, s_distance, s_sales, s_logo, s_name, s_desc, s_title, s_score, s_address)
+        values (#{sImg}, #{sDistance}, #{sSales}, #{sLogo}, #{sName}, #{sDesc}, #{sTitle}, #{sScore}, #{sAddress})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="sId" useGeneratedKeys="true">
+        insert into takeaway.shops(s_img, s_distance, s_sales, s_logo, s_name, s_desc, s_title, s_score, s_address)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.sImg}, #{entity.sDistance}, #{entity.sSales}, #{entity.sLogo}, #{entity.sName}, #{entity.sDesc},
+            #{entity.sTitle}, #{entity.sScore}, #{entity.sAddress})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="sId" useGeneratedKeys="true">
+        insert into takeaway.shops(s_img, s_distance, s_sales, s_logo, s_name, s_desc, s_title, s_score, s_address)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.sImg}, #{entity.sDistance}, #{entity.sSales}, #{entity.sLogo}, #{entity.sName}, #{entity.sDesc},
+            #{entity.sTitle}, #{entity.sScore}, #{entity.sAddress})
+        </foreach>
+        on duplicate key update
+        s_img = values(s_img) , s_distance = values(s_distance) , s_sales = values(s_sales) , s_logo = values(s_logo) ,
+        s_name = values(s_name) , s_desc = values(s_desc) , s_title = values(s_title) , s_score = values(s_score) ,
+        s_address = values(s_address)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update takeaway.shops
+        <set>
+            <if test="sImg != null and sImg != ''">
+                s_img = #{sImg},
+            </if>
+            <if test="sDistance != null">
+                s_distance = #{sDistance},
+            </if>
+            <if test="sSales != null and sSales != ''">
+                s_sales = #{sSales},
+            </if>
+            <if test="sLogo != null and sLogo != ''">
+                s_logo = #{sLogo},
+            </if>
+            <if test="sName != null and sName != ''">
+                s_name = #{sName},
+            </if>
+            <if test="sDesc != null and sDesc != ''">
+                s_desc = #{sDesc},
+            </if>
+            <if test="sTitle != null and sTitle != ''">
+                s_title = #{sTitle},
+            </if>
+            <if test="sScore != null and sScore != ''">
+                s_score = #{sScore},
+            </if>
+            <if test="sAddress != null and sAddress != ''">
+                s_address = #{sAddress},
+            </if>
+        </set>
+        where s_id = #{sId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from takeaway.shops where s_id = #{sId}
+    </delete>
+
+</mapper>
+

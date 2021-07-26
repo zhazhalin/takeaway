@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.takeaway.dao.OrderlistDao">
+
+    <resultMap type="com.qf.takeaway.entity.Orderlist" id="OrderlistMap">
+        <result property="oId" column="o_id" jdbcType="VARCHAR"/>
+        <result property="goods" column="goods" jdbcType="VARCHAR"/>
+        <result property="pay" column="pay" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--查询单个-->
+    <select id="queryById" resultMap="OrderlistMap">
+        select
+          o_id, goods, pay
+        from takeaway.orderlist
+        where o_id = #{oId}
+    </select>
+
+    <!--    查询所有-->
+    <select id="queryAllOrder" resultMap="OrderlistMap">
+        select * from takeaway.orderlist
+    </select>
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="OrderlistMap">
+        select
+          o_id, goods, pay
+        from takeaway.orderlist
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="OrderlistMap">
+        select
+        o_id, goods, pay
+        from takeaway.orderlist
+        <where>
+            <if test="oId != null and oId != ''">
+                and o_id = #{oId}
+            </if>
+            <if test="goods != null and goods != ''">
+                and goods = #{goods}
+            </if>
+            <if test="pay != null and pay != ''">
+                and pay = #{pay}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="oId" useGeneratedKeys="true">
+        insert into takeaway.orderlist(goods, pay)
+        values (#{goods}, #{pay})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="oId" useGeneratedKeys="true">
+        insert into takeaway.orderlist(goods, pay)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.goods}, #{entity.pay})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="oId" useGeneratedKeys="true">
+        insert into takeaway.orderlist(goods, pay)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.goods}, #{entity.pay})
+        </foreach>
+        on duplicate key update
+        goods = values(goods) , pay = values(pay)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update takeaway.orderlist
+        <set>
+            <if test="goods != null and goods != ''">
+                goods = #{goods},
+            </if>
+            <if test="pay != null and pay != ''">
+                pay = #{pay},
+            </if>
+        </set>
+        where o_id = #{oId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from takeaway.orderlist where o_id = #{oId}
+    </delete>
+</mapper>
+

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qf.takeaway.dao.GoodsDao">
+
+    <resultMap type="com.qf.takeaway.entity.Goods" id="GoodsMap">
+        <result property="gId" column="g_id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="pic" column="pic" jdbcType="VARCHAR"/>
+        <result property="number" column="number" jdbcType="VARCHAR"/>
+        <result property="price" column="price" jdbcType="INTEGER"/>
+        <result property="sId" column="s_id" jdbcType="VARCHAR"/>
+        <result property="classifyname" column="classifyName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--    根据商家id查找对应的商品-->
+    <select id="queryGoodsBySid" resultMap="GoodsMap">
+        select * from goods where goods.s_id=#{sid}
+    </select>
+    <!--    查询分类-->
+    <select id="classify" resultType="java.lang.String">
+        select distinct(classifyName) from takeaway.goods
+        where s_id=#{sid}
+    </select>
+    <!--    查询所有food-->
+    <select id="queryAll1" resultMap="GoodsMap">
+        select * from takeaway.goods;
+    </select>
+    <!--    求数据量总和-->
+    <select id="getCount" resultType="java.lang.Integer">
+        select count(g_id) from takeaway.goods
+    </select>
+    <!--查询单个-->
+    <select id="queryById" resultMap="GoodsMap">
+        select
+          g_id, name, pic, number, price, s_id, classifyName
+        from takeaway.goods
+        where g_id = #{gId}
+    </select>
+
+    <!--    根据物品名称进行模糊查询-->
+    <select id="queryGoodsByName" resultMap="GoodsMap">
+        select  g_id, goods.name, pic, goods.number, price, s_id, classifyName
+        from takeaway.goods
+        where goods.name like '%${name}%'
+    </select>
+    <!--查询指定行数据-->
+    <select id="queryAllByLimit" resultMap="GoodsMap">
+        select
+          g_id, name, pic, number, price, s_id, classifyName
+        from takeaway.goods
+        limit #{offset}, #{limit}
+    </select>
+
+    <!--通过实体作为筛选条件查询-->
+    <select id="queryAll" resultMap="GoodsMap">
+        select
+        g_id, name, pic, number, price, s_id, classifyName
+        from takeaway.goods
+        <where>
+            <if test="gId != null">
+                and g_id = #{gId}
+            </if>
+            <if test="name != null and name != ''">
+                and name = #{name}
+            </if>
+            <if test="pic != null and pic != ''">
+                and pic = #{pic}
+            </if>
+            <if test="number != null and number != ''">
+                and number = #{number}
+            </if>
+            <if test="price != null">
+                and price = #{price}
+            </if>
+            <if test="sId != null">
+                and s_id = #{sId}
+            </if>
+            <if test="classifyname != null and classifyname != ''">
+                and classifyName = #{classifyname}
+            </if>
+        </where>
+    </select>
+
+    <!--新增所有列-->
+    <insert id="insert" keyProperty="gId" useGeneratedKeys="true">
+        insert into takeaway.goods(name, pic, number, price, s_id, classifyName)
+        values (#{name}, #{pic}, #{number}, #{price}, #{sId}, #{classifyname})
+    </insert>
+
+    <insert id="insertBatch" keyProperty="gId" useGeneratedKeys="true">
+        insert into takeaway.goods(name, pic, number, price, s_id, classifyName)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.pic}, #{entity.number}, #{entity.price}, #{entity.sId}, #{entity.classifyname})
+        </foreach>
+    </insert>
+
+    <insert id="insertOrUpdateBatch" keyProperty="gId" useGeneratedKeys="true">
+        insert into takeaway.goods(name, pic, number, price, s_id, classifyName)
+        values
+        <foreach collection="entities" item="entity" separator=",">
+            (#{entity.name}, #{entity.pic}, #{entity.number}, #{entity.price}, #{entity.sId}, #{entity.classifyname})
+        </foreach>
+        on duplicate key update
+        name = values(name) , pic = values(pic) , number = values(number) , price = values(price) , s_id = values(s_id)
+        , classifyName = values(classifyName)
+    </insert>
+
+    <!--通过主键修改数据-->
+    <update id="update">
+        update takeaway.goods
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="pic != null and pic != ''">
+                pic = #{pic},
+            </if>
+            <if test="number != null and number != ''">
+                number = #{number},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="sId != null">
+                s_id = #{sId},
+            </if>
+            <if test="classifyname != null and classifyname != ''">
+                classifyName = #{classifyname},
+            </if>
+        </set>
+        where g_id = #{gId}
+    </update>
+
+    <!--通过主键删除-->
+    <delete id="deleteById">
+        delete from takeaway.goods where g_id = #{gId}
+    </delete>
+</mapper>
+
